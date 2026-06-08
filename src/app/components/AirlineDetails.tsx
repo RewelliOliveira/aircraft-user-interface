@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { ArrowLeft, Search, Users, Package, Wrench, CheckCircle, Plane, MapPin, Calendar, Loader2 } from "lucide-react";
+import { ArrowLeft, Search, Users, Package, Plane, MapPin, Calendar, Loader2 } from "lucide-react";
 import { apiService } from "../services/api";
 import type { Airline, Aircraft } from "../services/api";
 import { useSSE } from "../hooks/useSSE";
@@ -12,7 +12,6 @@ export function AirlineDetails() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filterTipo, setFilterTipo] = useState<"all" | "passenger" | "cargo">("all");
-  const [filterStatus, setFilterStatus] = useState<"all" | "ativo" | "manutencao">("all");
   const [selectedAircraft, setSelectedAircraft] = useState<Aircraft | null>(null);
   const [airline, setAirline] = useState<Airline | null>(null);
   const [fleet, setFleet] = useState<Aircraft[]>([]);
@@ -52,22 +51,13 @@ export function AirlineDetails() {
 
   const filtered = fleet.filter((a) => {
     const matchSearch = a.prefixo.toLowerCase().includes(search.toLowerCase()) || a.modelo.toLowerCase().includes(search.toLowerCase());
-    const matchTipo = filterTipo === "all" || (filterTipo === "passenger" ? (a.tipo === "passageiro" || a.tipo === "passenger") : (a.tipo === "carga" || a.tipo === "cargo"));
-    // Backend doesn't have status, so matchStatus will be 'all' or we assume 'ativo'
-    const matchStatus = filterStatus === "all" || filterStatus === "ativo"; 
-    return matchSearch && matchTipo && matchStatus;
+    const matchTipo = filterTipo === "all" || (filterTipo === "passenger" ? (a.tipo?.toLowerCase() === "passageiro" || a.tipo?.toLowerCase() === "passenger") : (a.tipo?.toLowerCase() === "carga" || a.tipo?.toLowerCase() === "cargo"));
+    return matchSearch && matchTipo;
   });
 
-  const ativos = fleet.length; // Assumindo todos ativos por falta de campo no backend
-  const em_manutencao = 0;
-  const passageiros = fleet.filter((a) => a.tipo === "passageiro" || a.tipo === "passenger").length;
-  const carga = fleet.filter((a) => a.tipo === "carga" || a.tipo === "cargo").length;
+  const passageiros = fleet.filter((a) => a.tipo?.toLowerCase() === "passageiro" || a.tipo?.toLowerCase() === "passenger").length;
+  const carga = fleet.filter((a) => a.tipo?.toLowerCase() === "carga" || a.tipo?.toLowerCase() === "cargo").length;
 
-  const statusConfig = {
-    ativo: { label: "ATIVO", color: "#10b981", bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.2)" },
-    manutencao: { label: "MANUTENÇÃO", color: "#f59e0b", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.2)" },
-    aposentado: { label: "APOSENTADO", color: "#6b7fa3", bg: "rgba(107,127,163,0.08)", border: "rgba(107,127,163,0.2)" },
-  };
 
   return (
     <div className="min-h-screen pt-14" style={{ background: "#070d1a" }}>
@@ -122,7 +112,6 @@ export function AirlineDetails() {
                 <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "28px", fontWeight: 700, color: "#e8edf5" }}>
                   {airline.nome}
                 </h1>
-                <StatusBadge status="ativa" />
               </div>
               <div className="flex items-center gap-4 mb-3">
                 <span className="flex items-center gap-1.5" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: "#6b7fa3" }}>
@@ -146,8 +135,6 @@ export function AirlineDetails() {
             <div className="flex gap-3 flex-shrink-0">
               {[
                 { label: "TOTAL FROTA", value: String(fleet.length), color: "#00c8f8" },
-                { label: "ATIVOS", value: String(ativos), color: "#10b981" },
-                { label: "MANUTENÇÃO", value: String(em_manutencao), color: "#f59e0b" },
               ].map((s) => (
                 <div
                   key={s.label}
@@ -207,13 +194,9 @@ export function AirlineDetails() {
               style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "12px", color: "#e8edf5" }}
             />
           </div>
-          <FilterBtn active={filterTipo === "all"} onClick={() => setFilterTipo("all")}>TODOS</FilterBtn>
+           <FilterBtn active={filterTipo === "all"} onClick={() => setFilterTipo("all")}>TODOS</FilterBtn>
           <FilterBtn active={filterTipo === "passenger"} onClick={() => setFilterTipo("passenger")}>PAX</FilterBtn>
           <FilterBtn active={filterTipo === "cargo"} onClick={() => setFilterTipo("cargo")}>CARGO</FilterBtn>
-          <div style={{ width: "1px", background: "rgba(0,200,248,0.1)", margin: "0 4px" }} />
-          <FilterBtn active={filterStatus === "all"} onClick={() => setFilterStatus("all")}>STATUS</FilterBtn>
-          <FilterBtn active={filterStatus === "ativo"} onClick={() => setFilterStatus("ativo")} accent="#10b981">ATIVO</FilterBtn>
-          <FilterBtn active={filterStatus === "manutencao"} onClick={() => setFilterStatus("manutencao")} accent="#f59e0b">MANUTENÇÃO</FilterBtn>
         </div>
 
         {/* Table */}
@@ -224,12 +207,12 @@ export function AirlineDetails() {
           <div
             className="grid items-center px-5 py-3"
             style={{
-              gridTemplateColumns: "1.4fr 1.8fr 0.8fr 0.7fr 0.7fr 0.9fr",
+              gridTemplateColumns: "1.4fr 1.8fr 0.8fr 0.7fr 0.9fr",
               borderBottom: "1px solid rgba(0,200,248,0.08)",
               background: "rgba(0,200,248,0.03)",
             }}
           >
-            {["PREFIXO", "MODELO", "TIPO", "CAPACIDADE", "ANO", "STATUS"].map((h) => (
+            {["PREFIXO", "MODELO", "TIPO", "CAPACIDADE", "ANO"].map((h) => (
               <span key={h} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: "#6b7fa3", letterSpacing: "0.1em" }}>
                 {h}
               </span>
@@ -243,15 +226,13 @@ export function AirlineDetails() {
             </div>
           ) : (
             filtered.map((ac, idx) => {
-              const statusValue = (ac as any).status || "ativo";
-              const st = statusConfig[statusValue as keyof typeof statusConfig] || statusConfig.ativo;
-              const isCargo = ac.tipo === "carga" || ac.tipo === "cargo";
+              const isCargo = ac.tipo?.toLowerCase() === "carga" || ac.tipo?.toLowerCase() === "cargo";
               return (
                 <div
                   key={ac.id}
                   className="grid items-center px-5 py-3.5 cursor-pointer transition-colors hover:bg-white/[0.03]"
                   style={{
-                    gridTemplateColumns: "1.4fr 1.8fr 0.8fr 0.7fr 0.7fr 0.9fr",
+                    gridTemplateColumns: "1.4fr 1.8fr 0.8fr 0.7fr 0.9fr",
                     borderBottom: idx < filtered.length - 1 ? "1px solid rgba(0,200,248,0.05)" : "none",
                   }}
                   onClick={() => {
@@ -283,15 +264,6 @@ export function AirlineDetails() {
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "13px", color: "#6b7fa3" }}>
                     {ac.ano_fabricacao}
                   </span>
-                  <div
-                    className="flex items-center gap-1.5 w-fit px-2 py-0.5 rounded"
-                    style={{ background: st.bg, border: `1px solid ${st.border}` }}
-                  >
-                    {statusValue === "ativo" ? <CheckCircle size={10} style={{ color: st.color }} /> : <Wrench size={10} style={{ color: st.color }} />}
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: st.color }}>
-                      {st.label}
-                    </span>
-                  </div>
                 </div>
               );
             })
@@ -310,31 +282,6 @@ export function AirlineDetails() {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const config: Record<string, { label: string; color: string; bg: string; border: string }> = {
-    ativa: { label: "ATIVA", color: "#10b981", bg: "rgba(16,185,129,0.1)", border: "rgba(16,185,129,0.25)" },
-    inativa: { label: "INATIVA", color: "#6b7fa3", bg: "rgba(107,127,163,0.1)", border: "rgba(107,127,163,0.25)" },
-    falida: { label: "FALIDA", color: "#ef4444", bg: "rgba(239,68,68,0.1)", border: "rgba(239,68,68,0.25)" },
-  };
-  const c = config[status] ?? config["inativa"];
-  return (
-    <span
-      style={{
-        fontFamily: "'JetBrains Mono', monospace",
-        fontSize: "10px",
-        fontWeight: 600,
-        color: c.color,
-        background: c.bg,
-        border: `1px solid ${c.border}`,
-        padding: "2px 8px",
-        borderRadius: "4px",
-        letterSpacing: "0.08em",
-      }}
-    >
-      {c.label}
-    </span>
-  );
-}
 
 function FilterBtn({ children, active, onClick, accent = "#00c8f8" }: {
   children: React.ReactNode;

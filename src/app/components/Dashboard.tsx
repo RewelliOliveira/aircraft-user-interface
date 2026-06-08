@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Search, Plane, Users, Package, TrendingUp, Globe, ChevronRight, Loader2 } from "lucide-react";
+import { Search, Plane, Users, Package, Globe, ChevronRight, Loader2 } from "lucide-react";
 import { apiService } from "../services/api";
 import type { Airline, Aircraft } from "../services/api";
 import { useSSE } from "../hooks/useSSE";
@@ -52,14 +52,8 @@ export function Dashboard() {
   );
 
   const totalFleet = aircraft.length;
-  const totalActive = aircraft.filter((a) => a.tipo !== "cargo" || a.capacidade_carga_kg).length; // Backend has no explicit status yet, assuming based on presence
-  // Wait, backend Aeronave has no 'status' field in the schema I saw.
-  // schema AeronaveCreate: prefixo, modelo, fabricante, ano_fabricacao, autonomia_km, tipo, piloto_automatico_ativo, num_assentos, etc.
-  // frontend mock has status: "ativo" | "manutencao" | "aposentado".
-  // I'll adjust the stats to use available fields or assume 'ativo' if not specified.
-
-  const totalPassenger = aircraft.filter((a) => a.tipo === "passageiro" || a.tipo === "passenger").length;
-  const totalCargo = aircraft.filter((a) => a.tipo === "carga" || a.tipo === "cargo").length;
+  const totalPassenger = aircraft.filter((a) => a.tipo?.toLowerCase() === "passageiro" || a.tipo?.toLowerCase() === "passenger").length;
+  const totalCargo = aircraft.filter((a) => a.tipo?.toLowerCase() === "carga" || a.tipo?.toLowerCase() === "cargo").length;
 
   const fleetByAirline = airlines
     .map((a) => ({
@@ -98,7 +92,6 @@ export function Dashboard() {
         <div className="grid grid-cols-4 gap-3 mb-8">
           {[
             { label: "AERONAVES", value: totalFleet, sub: "na base de dados", color: "#00c8f8", icon: <Plane size={16} /> },
-            { label: "ATIVAS", value: totalActive, sub: `${Math.round((totalActive / totalFleet) * 100)}% operacional`, color: "#10b981", icon: <TrendingUp size={16} /> },
             { label: "PASSAGEIROS", value: totalPassenger, sub: "aeronaves PAX", color: "#00c8f8", icon: <Users size={16} /> },
             { label: "CARGA", value: totalCargo, sub: "aeronaves cargo", color: "#a855f7", icon: <Package size={16} /> },
           ].map((kpi) => (
@@ -153,7 +146,6 @@ export function Dashboard() {
             <div className="space-y-2">
               {filtered.map((airline) => {
                 const fleetCount = aircraft.filter((a) => a.companhia_id === airline.id).length;
-                const activeCount = fleetCount; // Backend doesn't have status yet, assuming all active
 
                 return (
                   <div
@@ -202,7 +194,6 @@ export function Dashboard() {
                           <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "15px", fontWeight: 600, color: "#e8edf5" }}>
                             {airline.nome}
                           </p>
-                          <StatusPill status="ativa" />
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="flex items-center gap-1" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: "#4a5568" }}>
@@ -226,34 +217,16 @@ export function Dashboard() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "20px", fontWeight: 700, color: "#10b981", lineHeight: 1 }}>
-                            {activeCount}
-                          </p>
                           <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", color: "#4a5568", letterSpacing: "0.1em", marginTop: "2px" }}>
-                            ATIVAS
+                            AERONAVES
                           </p>
                         </div>
                         <ChevronRight size={16} style={{ color: "#6b7fa3" }} className="group-hover:text-primary transition-colors" />
                       </div>
                     </div>
 
-                    {/* Active progress bar */}
-                    {fleetCount > 0 && (
-                      <div className="mt-3 flex items-center gap-2">
-                        <div className="flex-1 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.05)" }}>
-                          <div
-                            className="h-full rounded-full transition-all"
-                            style={{
-                              width: `${(activeCount / fleetCount) * 100}%`,
-                              background: "linear-gradient(90deg, #00c8f8, #0ea5e9)",
-                            }}
-                          />
-                        </div>
-                        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: "#4a5568" }}>
-                          {Math.round((activeCount / fleetCount) * 100)}%
-                        </span>
-                      </div>
-                    )}
+                    {/* Fleet info bottom space */}
+                    <div className="mt-2" />
                   </div>
                 );
               })}
@@ -368,27 +341,3 @@ export function Dashboard() {
   );
 }
 
-function StatusPill({ status }: { status: string }) {
-  const config: Record<string, { label: string; color: string }> = {
-    ativa: { label: "ATIVA", color: "#10b981" },
-    inativa: { label: "INATIVA", color: "#6b7fa3" },
-    falida: { label: "FALIDA", color: "#ef4444" },
-  };
-  const c = config[status] ?? config["inativa"];
-  return (
-    <span
-      style={{
-        fontFamily: "'JetBrains Mono', monospace",
-        fontSize: "9px",
-        color: c.color,
-        background: `${c.color}15`,
-        border: `1px solid ${c.color}30`,
-        padding: "1px 6px",
-        borderRadius: "3px",
-        letterSpacing: "0.1em",
-      }}
-    >
-      {c.label}
-    </span>
-  );
-}

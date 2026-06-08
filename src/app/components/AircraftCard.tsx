@@ -1,22 +1,13 @@
 import type { Aircraft } from "../services/api";
-import { CheckCircle, Wrench, AlertTriangle, X, Package, Users, Calendar, Radio } from "lucide-react";
+import { X, Package, Users, Calendar, Radio } from "lucide-react";
 
 interface Props {
   aircraft: Aircraft;
   onClose: () => void;
 }
 
-const statusConfig = {
-  ativo: { label: "ATIVO", color: "#10b981", bg: "rgba(16, 185, 129, 0.1)", border: "rgba(16, 185, 129, 0.25)", icon: CheckCircle },
-  manutencao: { label: "MANUTENÇÃO", color: "#f59e0b", bg: "rgba(245, 158, 11, 0.1)", border: "rgba(245, 158, 11, 0.25)", icon: Wrench },
-  aposentado: { label: "APOSENTADO", color: "#6b7fa3", bg: "rgba(107, 127, 163, 0.1)", border: "rgba(107, 127, 163, 0.25)", icon: AlertTriangle },
-};
-
 export function AircraftCard({ aircraft, onClose }: Props) {
-  // Backend doesn't have status yet, defaulting to 'ativo'
-  const st = statusConfig[(aircraft as any).status || "ativo"];
-  const StatusIcon = st.icon;
-  const isCargo = aircraft.tipo === "carga" || aircraft.tipo === "cargo";
+  const isCargo = aircraft.tipo?.toLowerCase() === "carga" || aircraft.tipo?.toLowerCase() === "cargo";
 
   return (
     <div
@@ -103,20 +94,6 @@ export function AircraftCard({ aircraft, onClose }: Props) {
               value={isCargo ? `${aircraft.capacidade_carga_kg || 0}kg` : String(aircraft.num_assentos || 0)}
               accent={isCargo ? "#a855f7" : "#00c8f8"}
             />
-            <div
-              className="rounded-lg p-3 flex flex-col gap-1"
-              style={{ background: `${st.bg}`, border: `1px solid ${st.border}` }}
-            >
-              <div className="flex items-center gap-1.5">
-                <StatusIcon size={11} style={{ color: st.color }} />
-                <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", color: st.color, letterSpacing: "0.1em" }}>
-                  STATUS
-                </p>
-              </div>
-              <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", fontWeight: 600, color: st.color }}>
-                {st.label}
-              </p>
-            </div>
           </div>
 
           {/* Autonomia */}

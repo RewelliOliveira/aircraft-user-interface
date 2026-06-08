@@ -30,7 +30,6 @@ export function Navbar() {
 
       <div className="flex items-center gap-1">
         <NavItem to="/" label="Dashboard" active={location.pathname === "/"} />
-        <NavItem to="/status" label="Status" active={location.pathname === "/status"} />
       </div>
 
       <div className="flex items-center gap-2">
