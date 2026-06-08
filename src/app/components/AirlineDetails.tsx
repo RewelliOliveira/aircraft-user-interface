@@ -73,7 +73,7 @@ export function AirlineDetails() {
     const matchTipo =
       filterTipo === "all" ||
       (filterTipo === "passenger"
-        ? a.tipo?.toLowerCase() === "passageiro" ||
+        ? a.tipo?.toLowerCase() === "passageiros" ||
           a.tipo?.toLowerCase() === "passenger"
         : a.tipo?.toLowerCase() === "carga" ||
           a.tipo?.toLowerCase() === "cargo");
@@ -82,7 +82,7 @@ export function AirlineDetails() {
 
   const passageiros = fleet.filter(
     (a) =>
-      a.tipo?.toLowerCase() === "passageiro" ||
+      a.tipo?.toLowerCase() === "passageiros" ||
       a.tipo?.toLowerCase() === "passenger",
   ).length;
   const carga = fleet.filter(

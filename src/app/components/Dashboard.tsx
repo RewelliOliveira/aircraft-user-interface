@@ -60,7 +60,7 @@ export function Dashboard() {
   const totalFleet = aircraft.length;
   const totalPassenger = aircraft.filter(
     (a) =>
-      a.tipo?.toLowerCase() === "passageiro" ||
+      a.tipo?.toLowerCase() === "passageiros" ||
       a.tipo?.toLowerCase() === "passenger",
   ).length;
   const totalCargo = aircraft.filter(
