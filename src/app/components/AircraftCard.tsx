@@ -7,24 +7,29 @@ interface Props {
 }
 
 export function AircraftCard({ aircraft, onClose }: Props) {
-  const isCargo = aircraft.tipo?.toLowerCase() === "carga" || aircraft.tipo?.toLowerCase() === "cargo";
+  const isCargo =
+    aircraft.tipo?.toLowerCase() === "carga" ||
+    aircraft.tipo?.toLowerCase() === "cargo";
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(7, 13, 26, 0.8)", backdropFilter: "blur(8px)" }}
+      style={{
+        background: "rgba(7, 13, 26, 0.8)",
+        backdropFilter: "blur(8px)",
+      }}
       onClick={onClose}
     >
       <div
         className="relative w-full max-w-lg rounded-xl overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, rgba(13, 22, 40, 0.97) 0%, rgba(10, 18, 32, 0.97) 100%)",
+          background:
+            "linear-gradient(135deg, rgba(13, 22, 40, 0.97) 0%, rgba(10, 18, 32, 0.97) 100%)",
           border: `1px solid ${isCargo ? "rgba(124, 58, 237, 0.35)" : "rgba(0, 200, 248, 0.25)"}`,
           boxShadow: `0 0 60px ${isCargo ? "rgba(124, 58, 237, 0.15)" : "rgba(0, 200, 248, 0.1)"}`,
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header gradient bar */}
         <div
           className="h-1 w-full"
           style={{
@@ -33,14 +38,14 @@ export function AircraftCard({ aircraft, onClose }: Props) {
               : "linear-gradient(90deg, #00c8f8, #0ea5e9)",
           }}
         />
-
-        {/* Header */}
         <div className="flex items-start justify-between p-6 pb-4">
           <div className="flex items-center gap-3">
             <div
               className="w-10 h-10 rounded-lg flex items-center justify-center"
               style={{
-                background: isCargo ? "rgba(124, 58, 237, 0.15)" : "rgba(0, 200, 248, 0.12)",
+                background: isCargo
+                  ? "rgba(124, 58, 237, 0.15)"
+                  : "rgba(0, 200, 248, 0.12)",
                 border: `1px solid ${isCargo ? "rgba(124, 58, 237, 0.3)" : "rgba(0, 200, 248, 0.25)"}`,
               }}
             >
@@ -51,10 +56,25 @@ export function AircraftCard({ aircraft, onClose }: Props) {
               )}
             </div>
             <div>
-              <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "18px", fontWeight: 600, color: isCargo ? "#a855f7" : "#00c8f8", letterSpacing: "0.05em" }}>
+              <p
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "18px",
+                  fontWeight: 600,
+                  color: isCargo ? "#a855f7" : "#00c8f8",
+                  letterSpacing: "0.05em",
+                }}
+              >
                 {aircraft.prefixo}
               </p>
-              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "12px", color: "#6b7fa3", marginTop: "1px" }}>
+              <p
+                style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: "12px",
+                  color: "#6b7fa3",
+                  marginTop: "1px",
+                }}
+              >
                 {isCargo ? "Aeronave de Carga" : "Aeronave de Passageiros"}
               </p>
             </div>
@@ -67,20 +87,37 @@ export function AircraftCard({ aircraft, onClose }: Props) {
             <X size={16} />
           </button>
         </div>
-
-        {/* Body */}
         <div className="px-6 pb-6 space-y-4">
-          {/* Model */}
-          <div className="rounded-lg p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "20px", fontWeight: 600, color: "#e8edf5" }}>
+          <div
+            className="rounded-lg p-4"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.06)",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "'Outfit', sans-serif",
+                fontSize: "20px",
+                fontWeight: 600,
+                color: "#e8edf5",
+              }}
+            >
               {aircraft.modelo}
             </p>
-            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: "#6b7fa3", marginTop: "2px", letterSpacing: "0.08em" }}>
+            <p
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "11px",
+                color: "#6b7fa3",
+                marginTop: "2px",
+                letterSpacing: "0.08em",
+              }}
+            >
               {aircraft.fabricante.toUpperCase()}
             </p>
           </div>
 
-          {/* Stats grid */}
           <div className="grid grid-cols-3 gap-3">
             <StatCell
               icon={<Calendar size={13} />}
@@ -91,15 +128,25 @@ export function AircraftCard({ aircraft, onClose }: Props) {
             <StatCell
               icon={isCargo ? <Package size={13} /> : <Users size={13} />}
               label={isCargo ? "CAPACIDADE" : "PASSAGEIROS"}
-              value={isCargo ? `${aircraft.capacidade_carga_kg || 0}kg` : String(aircraft.num_assentos || 0)}
+              value={
+                isCargo
+                  ? `${aircraft.capacidade_carga_kg || 0}kg`
+                  : String(aircraft.num_assentos || 0)
+              }
               accent={isCargo ? "#a855f7" : "#00c8f8"}
             />
           </div>
 
-          {/* Autonomia */}
           <div className="flex items-center gap-2 mb-2">
             <Radio size={12} style={{ color: "#6b7fa3" }} />
-            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: "#6b7fa3", letterSpacing: "0.1em" }}>
+            <p
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "10px",
+                color: "#6b7fa3",
+                letterSpacing: "0.1em",
+              }}
+            >
               AUTONOMIA: {aircraft.autonomia_km} KM
             </p>
           </div>
@@ -109,17 +156,45 @@ export function AircraftCard({ aircraft, onClose }: Props) {
   );
 }
 
-function StatCell({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string; accent: string }) {
+function StatCell({
+  icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  accent: string;
+}) {
   return (
     <div
       className="rounded-lg p-3 flex flex-col gap-1"
-      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+      style={{
+        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(255,255,255,0.06)",
+      }}
     >
       <div className="flex items-center gap-1.5" style={{ color: "#6b7fa3" }}>
         {icon}
-        <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", letterSpacing: "0.1em" }}>{label}</p>
+        <p
+          style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: "9px",
+            letterSpacing: "0.1em",
+          }}
+        >
+          {label}
+        </p>
       </div>
-      <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "14px", fontWeight: 600, color: accent }}>
+      <p
+        style={{
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: "14px",
+          fontWeight: 600,
+          color: accent,
+        }}
+      >
         {value}
       </p>
     </div>
